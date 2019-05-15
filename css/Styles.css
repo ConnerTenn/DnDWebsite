@@ -1,0 +1,77 @@
+h1 {
+	color: blue
+}
+
+.Character_Container {
+	margin-top: 20px;
+	padding: 10px;
+	border: solid 2px black;
+	box-sizing: border-box;
+}
+
+.Character {
+	margin-top: 10px;
+	margin-left: 10px;
+	padding: 10px;
+	border: solid 2px black;
+	box-sizing: border-box;
+}
+
+.Stat_Container {
+	margin-left: 10px;
+}
+
+.Stat_ID, .Stat_Val {
+	display: inline-block;
+}
+
+.Item_Container {
+	margin-top: 10px;
+	margin-left: 10px;
+	
+	/*border: solid 2px black;*/
+	box-sizing: border-box;
+}
+
+.Item {
+	margin-top: 10px;
+	margin-left: 10px;
+	
+	border: solid 2px black;
+	box-sizing: border-box;
+}
+
+.Template, .Hidden {
+	display: none
+}
+
+
+
+.Label {
+	font-weight: bold;
+	display: inline-block;
+}
+
+.Add, .Del {
+	border-radius: 20%;
+	width: 13px;
+	text-align: center;
+	border: solid black 1px;
+	display: inline-block;
+}
+.Add:hover, .Del:hover {
+    cursor: pointer;
+}
+.Add::before { content: "+"; }
+.Del::before { content: "-"; }
+
+.Roll {
+	
+}
+
+/*
+textarea {
+	min-height: 20pt;
+}
+*/
+

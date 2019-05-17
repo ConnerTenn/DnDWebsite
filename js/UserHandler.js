@@ -142,7 +142,7 @@ class Character
 				InitItem(this.$ItemContainer, data.Items[i]);
 			}
 			
-			this.$Root.find("textarea").val(data.TextBox);
+			if (data.TextBox) { this.$Root.find("textarea").val(Desanitize(data.TextBox)); }
 		}
 		else { this.CharacterID = makeid(10); }
 		
@@ -201,8 +201,9 @@ function GetCharacterData($root)
 		data.Items.push(GetItemData($(this)));
 	});
 	
-	data.TextBox = encodeURIComponent($root.find("textarea").val());
-	
+	//data.TextBox = encodeURIComponent($root.find("textarea").val());
+	data.TextBox = Sanitize($root.find("textarea").val());
+	Log(data.TextBox);
 	
 	return data;
 }

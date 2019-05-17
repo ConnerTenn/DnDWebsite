@@ -16,6 +16,7 @@ function ProcessMessage(msg, data)
 	}
 	else if (msg=="AddCharacter")
 	{
+		Log("Received Character Data:");
 		Log(JSON.parse(data));
 		new Character(JSON.parse(data));
 	}
@@ -47,7 +48,7 @@ xhttp.onreadystatechange = ResponseHandler;
 $(".Logout").click(Login);
 function Login()
 {
-	console.log("Logout");
+	Log("Logout");
 	
 	MsgSrv({Msg:"Logout"});
 }
@@ -66,8 +67,8 @@ CharacterStats = {
 	"Wisdom": [50, 50],
 	"Charisma": [50, 50],
 	"MagicalPower": [50, 50],
-	"MaxHealth": 6,
-	"MaxMana": 10
+	"MaxHealth": [6,0],
+	"MaxMana": [10,0]
 };
 
 ItemStats = {
@@ -77,22 +78,44 @@ ItemStats = {
 };
 
 
-function AddStats(stats, location)
+function AddStats(stats, defaultStats, location)
 {
-	for (var i in stats)
+	for (var i in defaultStats)
 	{
 		var $newElem = $TemplateStat.clone(true);
 		$newElem.removeClass("Template");
-
+		
+		stat = ( stats && stats[i] ? stats[i] : defaultStats[i] );
+		//Log(stat);
+		
 		$newElem.find(".Stat_ID").text(i);
-		$newElem.find(".Stat_Prob").text(stats[i][0]);
-		$newElem.find(".Stat_Var").text(stats[i][1]);
+		$newElem.find(".Stat_Prob").val(stat[0]);
+		$newElem.find(".Stat_Var").val(stat[1]);
+		//$newElem.change(ResendCharacterData);
 		location.append($newElem);
 	}
 }
 
 
-
+function InitItem($container, data)
+{
+	var $newElem = $TemplateItem.clone(true);
+	$newElem.removeClass("Template");
+	
+	itemID=null;
+	if (data) 
+	{ 
+		itemID = data.ItemID; 
+		$newElem.find(".Item_Name").val(data.ItemName);
+	}
+	else { itemID=makeid(10); }
+	
+	$newElem.find(".Item_ID").text(itemID);
+	var stats = ((data && data.Stats) ? data.Stats : null );
+	AddStats(stats, ItemStats, $newElem.find(".Item_Stat_Container"));
+	
+	$container.append($newElem);
+}
 
 class Character
 {
@@ -105,15 +128,33 @@ class Character
 		this.$ItemContainer = this.$Root.find(".Item_Container");
 		
 		
-		this.$Root.find(".Character_Name").change(this, ResendCharacterData);
+		//this.$Root.find(".Character_Name").change(this, $ResendCharacterData);
 		
-		AddStats(CharacterStats, this.$StatContainer);
+		//AddStats(CharacterStats, this.$StatContainer);
 		
-		if (data && data.CharacterName) { this.$Root.find(".Character_Name").val(data.CharacterName); }
+		if (data)
+		{
+			if (data.CharacterID) { this.CharacterID = data.CharacterID; } 
+			if (data.CharacterName) { this.$Root.find(".Character_Name").val(data.CharacterName); }
+			
+			for (var i in data.Items)
+			{
+				InitItem(this.$ItemContainer, data.Items[i]);
+			}
+			
+			this.$Root.find("textarea").val(data.TextBox);
+		}
+		else { this.CharacterID = makeid(10); }
 		
-		if (data && data.CharacterID) { this.CharacterID = data.CharacterID; } else { this.CharacterID = makeid(10); }
+		var stats = ((data && data.Stats) ? data.Stats : null );
+		AddStats(stats, CharacterStats, this.$StatContainer);
 		
+		this.$Root.change(this, function(event) { ResendCharacterData(event.data.$Root) } );
+			
 		this.$Root.find(".Character_ID").text(this.CharacterID);
+		
+		this.$Root.find(".Add.Add_Item").click(AddItem);
+		this.$Root.find(".Del.Del_Item").click(DelItem);
 
 		$CharacterContainer.append(this.$Root);
 	}
@@ -124,41 +165,85 @@ class Character
 	}
 }
 
+function GetItemData($item)
+{
+	var itemData = {};
+	itemData.ItemID = $item.find(".Item_ID").text();
+	itemData.ItemName = $item.find(".Item_Name").val();
+	
+	itemData.Stats = {};
+	$item.find(".Stat").each( function(i)
+	{
+		label = $(this).find(".Stat_ID").text();
+		itemData.Stats[label] = [$(this).find(".Stat_Prob").val(), $(this).find(".Stat_Var").val()];
+	});
+
+	
+	return itemData;
+}
+
 function GetCharacterData($root)
 {
-	data = {};
+	var data = {};
 	data.CharacterID = $root.find(".Character_ID").text();
 	data.CharacterName = $root.find(".Character_Name").val();
+	data.Stats = {};
+	//for (var i in stats)
+	$root.find(".Stat").each( function(i)
+	{
+		label = $(this).find(".Stat_ID").text();
+		data.Stats[label] = [$(this).find(".Stat_Prob").val(), $(this).find(".Stat_Var").val()];
+	});
+	
+	data.Items = [];
+	$root.find(".Item").each( function(i)
+	{
+		data.Items.push(GetItemData($(this)));
+	});
+	
+	data.TextBox = encodeURIComponent($root.find("textarea").val());
+	
+	
 	return data;
 }
 
-function ResendCharacterData(event)
+function ResendCharacterData($character)
 {
-	data = GetCharacterData(event.data.$Root);
+	var data = GetCharacterData($character);
 	username = Cookies.get("Username");
 	passHash = Cookies.get("PassHash");
+	
+	Log("Sending Character Data:");
+	Log(data);
 	
 	game = "Intro";
 	MsgSrv({ Msg:"UpdateCharacter", "Username":username, "PassHash":passHash, "Game":game, "CharacterID":data.CharacterID, Data:JSON.stringify(data) });
 }
 
-this.$(".Add.AddItem").click(AddItem);
+
 function AddItem(event)
 {
-	var $newElem = $TemplateItem.clone(true);
-	$newElem.removeClass("Template");
+	//Log("Add Item");
+	//var $newElem = $TemplateItem.clone(true);
+	//$newElem.removeClass("Template");
+	InitItem($(this).siblings(".Item_Container"), null);
 	
-	AddStats(ItemStats, $newElem.find(".Item_Stat_Container"));
+	//AddStats(ItemStats, ItemStats, $newElem.find(".Item_Stat_Container"));
 	
-	$(this).siblings(".Item_Container").append($newElem);
+	//$(this).siblings(".Item_Container").append($newElem);
+	
+	ResendCharacterData($(this).closest(".Character"));
 }
-this.$(".Del.DelItem").click(DelItem);
 function DelItem(event)
 {
+	$character = $(this).closest(".Character")
+	
 	$(this).closest(".Item").remove();
+	
+	ResendCharacterData($character);
 }
 
-this.$(".Add.Add_Character").click(AddCharacter);
+$(".Add.Add_Character").click(AddCharacter);
 function AddCharacter()
 {
 	newCharacter = new Character();
@@ -171,7 +256,8 @@ function AddCharacter()
 	game = "Intro";
 	MsgSrv({ Msg:"AddCharacter", "Username":username, "PassHash":passHash, "Game":game, "CharacterID":data.CharacterID, Data:JSON.stringify(data) });
 }
-this.$(".Del.Del_Character").click(DelCharacter);
+
+$(".Del.Del_Character").click(DelCharacter);
 function DelCharacter(event)
 {
 	$character = $(this).closest(".Character")
@@ -185,19 +271,7 @@ function DelCharacter(event)
 	
 	$character.remove();
 }
-/*function UpdateCharacter()
-{
-	newCharacter = new Character();
-	$character = newCharacter.$Root;
-	
-	id = $character.find("Character_ID").text();
-	username = Cookies.get("Username");
-	passHash = Cookies.get("PassHash");
-	game = "Intro";
-	Log(id);
-	MsgSrv({ Msg:"UpdateCharacter", "Username":username, "PassHash":passHash, "Game":game, "CharacterID":id });
-}*/
-//new Character();
+
 
 function RequestCharacter(game)
 {

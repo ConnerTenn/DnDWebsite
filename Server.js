@@ -55,8 +55,8 @@ function ProcessMsg(msg, data, res)
 				[ "Cookie", {name:"PassHash", value:data.PassHash, args:{expires:7}} ],
 				[ "Redirect", "/user.html" ]
 			];
-			//Log(data);
-			res.write(JSON.stringify(data));
+			try { res.write(JSON.stringify(data)); }
+			catch (err) { Err("Failed to parse JSON"); Err(err); }
 			res.end();
 			
 			Log("Created new user");
@@ -67,7 +67,8 @@ function ProcessMsg(msg, data, res)
 			data = [
 				[ "Error", "Account already exists" ]
 			];
-			res.write(JSON.stringify(data));
+			try { res.write(JSON.stringify(data)); }
+			catch (err) { Err("Failed to parse JSON"); Err(err); }
 			res.end();
 			
 			//Err("Account already exists");

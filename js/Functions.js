@@ -37,7 +37,9 @@ function MsgSrv(data)
 	for (id in data)
 	{
 		msg+=id+"="+data[id]+"&";
-	} 
+	}
+	Log("Send Message:");
+	Log(msg);
 	xhttp.open("GET", msg, true);
 	xhttp.send();
 }

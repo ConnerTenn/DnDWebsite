@@ -51,4 +51,28 @@ function makeid(length) {
 	}
 	return result;
  }
+
+function Sanitize(str) 
+{
+	var out = "";
+	for (i in str)
+	{
+		c=str.charCodeAt(i).toString(16);
+		out+=(c.length==1 ? '0'+c : c);
+	}
+	return out;//str.replace(/\%/g, "#"); 
+}
+
+function Desanitize(str)
+{
+	//str = str.replace(/\#/g, "%");
+	var out = "";
+	for (i=0; i<str.length; i+=2)
+	{
+		out+=String.fromCharCode(parseInt(str.substring(i,i+2),16));
+		
+	}
+	return out; 
+}
+ 
  

@@ -93,9 +93,7 @@ function ProcessMsg(msg, data, res)
 		{
 			res.writeHead(200, { "Content-Type": "Msg" });
 			data = [ ];
-			for (i in result) { Log(result[i]); data.push([ "AddCharacter", 
-					result[i].Data
-				]); }
+			for (i in result) { Log(result[i]); data.push([ "AddCharacter", result[i].Data ]); }
 			res.write(JSON.stringify(data));
 			res.end();
 		}

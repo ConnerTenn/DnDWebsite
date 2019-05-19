@@ -39,7 +39,7 @@ function MsgSrv(data)
 		msg+=id+"="+data[id]+"&";
 	}
 	Log("Send Message:");
-	Log(msg);
+	Log(data);
 	xhttp.open("GET", msg, true);
 	xhttp.send();
 }

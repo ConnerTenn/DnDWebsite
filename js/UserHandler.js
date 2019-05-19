@@ -189,7 +189,7 @@ function GetCharacterData($root)
 	data.CharacterName = $root.find(".Character_Name").val();
 	data.Stats = {};
 	//for (var i in stats)
-	$root.find(".Stat").each( function(i)
+	$root.find(".Stat_Container .Stat").each( function(i)
 	{
 		label = $(this).find(".Stat_ID").text();
 		data.Stats[label] = [$(this).find(".Stat_Prob").val(), $(this).find(".Stat_Var").val()];

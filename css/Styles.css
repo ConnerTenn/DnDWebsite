@@ -69,6 +69,16 @@ h1 {
 	
 }
 
+.Log_Column {
+	width: 25%; 
+	vertical-align: top;
+	height: 100%;
+}
+.Log {
+	margin-left: 20px;
+	border: solid black 1px;
+	height: 100%;
+}
 /*
 textarea {
 	min-height: 20pt;

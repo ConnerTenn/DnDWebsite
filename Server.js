@@ -182,6 +182,16 @@ function ProcessMsg(msg, data, res)
 		}
 		srv.UpdateCharacter({Username:data.Username, PassHash:data.PassHash, Game:data.Game, CharacterID:data.CharacterID, Data:data.Data}, success, fail);
 	}
+	else if (msg=="HeartBeat")
+	{
+		res.writeHead(200, { "Content-Type": "Msg" });
+		data = [
+			["HeartBeat", null]
+		];
+		res.write(JSON.stringify(data));
+		res.end();
+		return;
+	}
 	else
 	{
 		Warn("Unhandled Msg [" + msg + "]");

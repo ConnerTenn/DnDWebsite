@@ -20,30 +20,26 @@ function ProcessMessage(msg, data)
 		Log(JSON.parse(data));
 		new Character(JSON.parse(data));
 	}
+	else if (msg=="HeartBeat")
+	{
+		Beat=true;
+	}
 	else
 	{
 		Warn("Unhandled Msg [" + msg + "]");
 	}
 }
 
-function ResponseHandler()
+function OnConnect()
 {
-	Log("Got Response  State:" + this.readyState + "  Status:" + this.status);
-
-	if (this.readyState == 4 && this.status == 200)
-	{
-		if (this.getResponseHeader("Content-Type") == "Msg")
-		{
-			var data = JSON.parse(this.responseText);
-			for (i in data)
-			{
-				Log("Msg: " + data[i][0]);
-				ProcessMessage(data[i][0], data[i][1]);
-			}
-		}
-	}
+	AddLog("Connected to server!", "green");
 }
-xhttp.onreadystatechange = ResponseHandler;
+
+function OnDisconnect()
+{
+	AddLog("Warning:: Connection to Server Lost", "red");
+}
+InitConnection(ProcessMessage, OnConnect, OnDisconnect);
 
 $(".Logout").click(Login);
 function Login()
@@ -152,9 +148,6 @@ class Character
 		this.$Root.change(this, function(event) { ResendCharacterData(event.data.$Root) } );
 			
 		this.$Root.find(".Character_ID").text(this.CharacterID);
-		
-		this.$Root.find(".Add.Add_Item").click(AddItem);
-		this.$Root.find(".Del.Del_Item").click(DelItem);
 
 		$CharacterContainer.append(this.$Root);
 	}
@@ -222,6 +215,8 @@ function ResendCharacterData($character)
 }
 
 
+$(".Add.Add_Item").click(AddItem);
+$(".Del.Del_Item").click(DelItem);
 function AddItem(event)
 {
 	//Log("Add Item");
@@ -290,5 +285,29 @@ function RequestCharacterData(game, name)
 
 RequestCharacter("Intro");
 
+$Log=$(".Log");
+function AddLog(str, colour="black")
+{
+	temp = "<div style='color:"+colour+";'>" + str + "</div>"
+	$Log.append(temp);
+	
+	$children = $Log.children();
+	if ($children.length > 100)
+	{
+		$($children[0]).remove();
+	}
+
+	$Log.scrollTop($Log.height());
+}
+
+$(".Roll").click(Roll);
+function Roll(event)
+{
+	$Stat = $(this).closest(".Stat");
+	average = parseInt($Stat.find(".Stat_Prob").val())/100;
+	variance = parseInt($Stat.find(".Stat_Var").val())/100;
+
+	AddLog("Roll "+average+" "+variance+" "+(Gaussian(average, variance)*100));
+}
 
 

@@ -69,15 +69,28 @@ h1 {
 	
 }
 
+.Main_Content {
+	margin-right: 25%;
+}
+
 .Log_Column {
 	width: 25%; 
-	vertical-align: top;
+	padding-left: 10px;
 	height: 100%;
+	position: fixed;
+	z-index: 1;
+	top: 0;
+	right: 0;
+	overflow: hidden;
+	box-sizing: border-box;
+	border-left: solid black 1px;
 }
 .Log {
-	margin-left: 20px;
-	border: solid black 1px;
-	height: 100%;
+	background: lightgrey;
+	height: 80%;
+	font-family: 'Courier New', Courier, monospace;
+	font-size: 10pt;
+	overflow-y: scroll;
 }
 /*
 textarea {

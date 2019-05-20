@@ -160,10 +160,10 @@ exports.GetCharacter = function(username, passHash, game, success, fail)
 	//successDat=1;
 	SqlQueue([
 		["SELECT Username FROM Users WHERE Username='"+username+"' AND PassHash='"+passHash+"';", 
-		function(result) { Log(result); if (result.length == 0){return false;} return true; }],
+		function(result) { Log(result); if (result && result.length == 0){return false;} return true; }],
 		
 		["SELECT CharacterID, Data  FROM PlayerData WHERE Username='"+username+"' AND Game='"+game+"';",
-		function(result) { Log(result); if (result.length == 0){return false;} return true; }]
+		function(result) { Log(result); if (result && result.length == 0){return false;} return true; }]
 	],
 	undefined, success, fail);
 	

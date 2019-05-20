@@ -22,24 +22,7 @@ function ProcessMessage(msg, data)
 	}
 }
 
-function ResponseHandler()
-{
-	Log("Got Response  State:" + this.readyState + "  Status:" + this.status);
-	
-	if (this.readyState == 4 && this.status == 200)
-	{
-		if (this.getResponseHeader("Content-Type") == "Msg")
-		{
-			var data = JSON.parse(this.responseText);
-			for (i in data)
-			{
-				Log("Msg: " + data[i][0]);
-				ProcessMessage(data[i][0], data[i][1]);
-			}
-		}
-	}
-}
-xhttp.onreadystatechange = ResponseHandler;
+InitConnection(ProcessMessage);
 
 $(".Login").click(Login);
 function Login()

@@ -31,6 +31,35 @@ function Hash(str)
 
 var xhttp = new XMLHttpRequest();
 
+var ProcessMessage;
+var OnConnect;
+var OnDisconnect;
+var Connected=false;
+var ConnectedLast=false;
+
+function ReceiveConfirm()
+{
+	if (!Connected) 
+	{
+		if (ConnectedLast)
+		{
+			if (OnDisconnect) { Warn("Disconnected"); OnDisconnect(); } 
+		}
+	}
+	else
+	{
+		if (!ConnectedLast)
+		{
+			if (OnConnect) { Log("Connected"); OnConnect(); } 
+		}
+	}
+	ConnectedLast=Connected;
+}
+function HeartBeat()
+{
+	MsgSrv({Msg:"HeartBeat"});
+}
+
 function MsgSrv(data)
 {
 	msg="?"
@@ -39,9 +68,38 @@ function MsgSrv(data)
 		msg+=id+"="+data[id]+"&";
 	}
 	Log("Send Message:");
-	Log(msg);
+	Log(data);
 	xhttp.open("GET", msg, true);
 	xhttp.send();
+
+	Connected=false;
+	setTimeout(ReceiveConfirm, 1000);
+}
+function ResponseHandler()
+{
+	if (this.readyState == 4 && this.status == 200)
+	{
+		Connected=true;
+		if (this.getResponseHeader("Content-Type") == "Msg")
+		{
+			var data = JSON.parse(this.responseText);
+			for (i in data)
+			{
+				Log("Msg: " + data[i][0]);
+				ProcessMessage(data[i][0], data[i][1]);
+			}
+		}
+	}
+}
+xhttp.onreadystatechange = ResponseHandler;
+
+function InitConnection(processMessage, onConnect, onDisconnect, heartbeat=false)
+{
+	if (!ProcessMessage) { throw "Need Message Handler" }
+	ProcessMessage=processMessage;
+	OnConnect=onConnect;
+	OnDisconnect=onDisconnect;
+	if (heartbeat) { setInterval(HeartBeat, 3000); }
 }
 
 function makeid(length) {
@@ -77,4 +135,14 @@ function Desanitize(str)
 	return out; 
 }
  
- 
+ function Gaussian(mu, sigma)
+ {
+	norm=-2;
+	while(norm<-1 || norm>1)
+	{
+		a=0; while(a==0){ a=Math.random(); }
+		b=0; while(b==0){ b=Math.random(); }
+		norm=Math.sqrt(-2*Math.log(a))*Math.cos(Math.PI*2*b);
+	}
+	return norm*sigma+mu;
+ }

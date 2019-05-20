@@ -294,12 +294,15 @@ function AddLog(str, colour="black")
 	$Log.append(temp);
 	
 	$children = $Log.children();
-	if ($children.length > 100)
+	if ($children.length > 80)
 	{
 		$($children[0]).remove();
 	}
 
 	$Log.scrollTop($Log.height());
+	Log($Log.height());
+	
+
 }
 
 $(".Roll").click(Roll);

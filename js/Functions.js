@@ -60,8 +60,6 @@ function HeartBeat()
 	MsgSrv({Msg:"HeartBeat"});
 }
 
-setInterval(HeartBeat, 3000);
-
 function MsgSrv(data)
 {
 	msg="?"
@@ -95,12 +93,13 @@ function ResponseHandler()
 }
 xhttp.onreadystatechange = ResponseHandler;
 
-function InitConnection(processMessage, onConnect, onDisconnect)
+function InitConnection(processMessage, onConnect, onDisconnect, heartbeat=false)
 {
 	if (!ProcessMessage) { throw "Need Message Handler" }
 	ProcessMessage=processMessage;
 	OnConnect=onConnect;
 	OnDisconnect=onDisconnect;
+	if (heartbeat) { setInterval(HeartBeat, 3000); }
 }
 
 function makeid(length) {
@@ -138,8 +137,8 @@ function Desanitize(str)
  
  function Gaussian(mu, sigma)
  {
-	norm=-1;
-	while(norm<0 || norm>1)
+	norm=-2;
+	while(norm<-1 || norm>1)
 	{
 		a=0; while(a==0){ a=Math.random(); }
 		b=0; while(b==0){ b=Math.random(); }

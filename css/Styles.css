@@ -1,5 +1,6 @@
 h1 {
-	color: blue
+	color: blue;
+	margin-bottom: 5px;
 }
 
 .Character_Container {
@@ -21,9 +22,13 @@ h1 {
 	margin-left: 10px;
 }
 
-.Stat_ID, .Stat_Val {
+.Stat_ID {
 	display: inline-block;
 }
+.Stat_Prob, .Stat_Var {
+	width: 20px;
+}
+
 
 .Item_Container {
 	margin-top: 10px;
@@ -86,6 +91,7 @@ h1 {
 	border-left: solid black 1px;
 }
 .Log {
+	margin-top: 5px;
 	background: lightgrey;
 	height: 80%;
 	font-family: 'Courier New', Courier, monospace;

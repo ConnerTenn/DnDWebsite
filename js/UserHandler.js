@@ -1,5 +1,5 @@
 
-
+$(".User").text("User "+Cookies.get("Username"));
 
 function ProcessMessage(msg, data)
 {
@@ -39,7 +39,7 @@ function OnDisconnect()
 {
 	AddLog("Warning:: Connection to Server Lost", "red");
 }
-InitConnection(ProcessMessage, OnConnect, OnDisconnect);
+InitConnection(ProcessMessage, OnConnect, OnDisconnect, true);
 
 $(".Logout").click(Login);
 function Login()
@@ -73,8 +73,9 @@ ItemStats = {
 	"Stealth": [50, 50],
 };
 
+GeneralRoll = { "GeneralRoll":[50, 50] };
 
-function AddStats(stats, defaultStats, location)
+function AddStats(stats, defaultStats, $location)
 {
 	for (var i in defaultStats)
 	{
@@ -88,9 +89,10 @@ function AddStats(stats, defaultStats, location)
 		$newElem.find(".Stat_Prob").val(stat[0]);
 		$newElem.find(".Stat_Var").val(stat[1]);
 		//$newElem.change(ResendCharacterData);
-		location.append($newElem);
+		$location.append($newElem);
 	}
 }
+AddStats(GeneralRoll, GeneralRoll, $(".Log_Column .Stat_Container"));
 
 
 function InitItem($container, data)
@@ -307,7 +309,7 @@ function Roll(event)
 	average = parseInt($Stat.find(".Stat_Prob").val())/100;
 	variance = parseInt($Stat.find(".Stat_Var").val())/100;
 
-	AddLog("Roll "+average+" "+variance+" "+(Gaussian(average, variance)*100));
+	AddLog("Roll "+$Stat.find(".Stat_ID").text()+" "+Math.round(Gaussian(average, variance)*100));
 }
 
 

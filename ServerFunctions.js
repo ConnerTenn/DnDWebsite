@@ -122,9 +122,9 @@ exports.Login = function(username, passHash, success, fail)
 	passHash = escape(passHash);
 	SqlQueue([
 		["SELECT Username FROM Users WHERE Username='"+username+"';", 
-		function(result) { Log(result); if (result.length == 0){return false;} return true; }],
+		function(result) { Log(result); if (!result || result.length == 0){return false;} return true; }],
 		["SELECT PassHash FROM Users WHERE username='"+username+"';",
-		function (result) { Log(result[0].PassHash); Log(passHash); if (result[0].PassHash && result[0].PassHash==passHash) { return true; } return false; }]
+		function (result) { Log(result); Log(passHash); if (result && result[0].PassHash && result[0].PassHash==passHash) { return true; } return false; }]
 	], undefined, success, fail);
 }
 
@@ -135,7 +135,7 @@ exports.CreateUser = function(username, passHash, success, fail)
 	passHash=escape(passHash);
 	SqlQueue([
 		["SELECT Username FROM Users WHERE Username='"+username+"';",
-		function (result) { if (result.length == 0){return true;} return false; }],
+		function (result) { if (result && result.length == 0){return true;} return false; }],
 		["INSERT INTO Users(Username,PassHash) VALUES ('"+username+"','"+passHash+"');"]
 	], undefined, success, fail);
 }
@@ -160,10 +160,10 @@ exports.GetCharacter = function(username, passHash, game, success, fail)
 	//successDat=1;
 	SqlQueue([
 		["SELECT Username FROM Users WHERE Username='"+username+"' AND PassHash='"+passHash+"';", 
-		function(result) { Log(result); if (result && result.length == 0){return false;} return true; }],
+		function(result) { Log(result); if (!result || result.length == 0){return false;} return true; }],
 		
 		["SELECT CharacterID, Data  FROM PlayerData WHERE Username='"+username+"' AND Game='"+game+"';",
-		function(result) { Log(result); if (result && result.length == 0){return false;} return true; }]
+		function(result) { Log(result); if (!result || result.length == 0){return false;} return true; }]
 	],
 	undefined, success, fail);
 	
@@ -180,10 +180,10 @@ function AddCharacter(args, success, fail)
 	//successDat=1;
 	SqlQueue([
 		["SELECT Username FROM Users WHERE Username='"+Username+"' AND PassHash='"+PassHash+"';", 
-		function(result) { Log(result); if (result.length == 0){return false;} return true; }],
+		function(result) { Log(result); if (!result || result.length == 0){return false;} return true; }],
 		
 		["SELECT * FROM PlayerData WHERE Username='"+Username+"' AND Game='"+Game+"' AND CharacterID='"+CharacterID+"';",
-		function(result) { Log(result); if (result.length == 0){return true;} return false; }],
+		function(result) { Log(result); if (result && result.length == 0){return true;} return false; }],
 		
 		["INSERT INTO PlayerData(Username, Game, CharacterID, Data) VALUES ('"+Username+"', '"+Game+"', '"+CharacterID+"', '"+Data+"');", undefined] 
 	],
@@ -202,7 +202,7 @@ function DeleteCharacter(args, success, fail)
 	//successDat=1;
 	SqlQueue([
 		["SELECT Username FROM Users WHERE Username='"+Username+"' AND PassHash='"+PassHash+"';", 
-		function(result) { Log(result); if (result.length == 0){return false;} return true; }],
+		function(result) { Log(result); if (!result || result.length == 0){return false;} return true; }],
 		
 		["DELETE FROM PlayerData WHERE Username='"+Username+"' AND Game='"+Game+"' AND CharacterID='"+CharacterID+"';", undefined] 
 	],

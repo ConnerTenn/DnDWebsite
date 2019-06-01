@@ -137,12 +137,13 @@ function Desanitize(str)
  
  function Gaussian(mu, sigma)
  {
-	norm=-2;
-	while(norm<-1 || norm>1)
+	norm=-1;
+	while(norm<0 || norm>100)
 	{
 		a=0; while(a==0){ a=Math.random(); }
 		b=0; while(b==0){ b=Math.random(); }
 		norm=Math.sqrt(-2*Math.log(a))*Math.cos(Math.PI*2*b);
+		norm=norm*sigma+mu;
 	}
-	return norm*sigma+mu;
+	return norm;
  }

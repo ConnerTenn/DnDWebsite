@@ -31,11 +31,11 @@ function ProcessMessage(msg, data)
 }
 function OnConnect()
 {
-	AddLog("Connected to server!", "green");
+	UserLog("Connected to server!", "green");
 }
 function OnDisconnect()
 {
-	AddLog("Warning:: Connection to Server Lost", "red");
+	UserLog("Warning:: Connection to Server Lost", "red");
 }
 InitConnection(ProcessMessage, OnConnect, OnDisconnect, true);
 
@@ -285,32 +285,16 @@ function RequestCharacterData(game, name)
 
 RequestCharacter("Intro");
 
-$Log=$(".Log");
-function AddLog(str, colour="black")
-{
-	var temp = "<div style='color:"+colour+";'>" + str + "</div>"
-	$Log.append(temp);
-	
-	var $children = $Log.children();
-	if ($children.length > 80)
-	{
-		$($children[0]).remove();
-	}
-
-	$Log.scrollTop($Log.height());
-	Log($Log.height());
-	
-
-}
 
 $(".Roll").click(Roll);
 function Roll(event)
 {
 	var $Stat = $(this).closest(".Stat");
-	var average = parseFloat($Stat.find(".Stat_Prob").val())/100;
-	var variance = parseFloat($Stat.find(".Stat_Var").val())/100;
+	var average = parseFloat($Stat.find(".Stat_Prob").val());
+	var variance = parseFloat($Stat.find(".Stat_Var").val());
 
-	AddLog("Roll "+$Stat.find(".Stat_ID").text()+" "+Math.round(Gaussian(average, variance)*100));
+	var roll = CalcRoll(average, variance);
+	UserLog("Roll "+$Stat.find(".Stat_ID").text()+" "+roll);
 }
 
 

@@ -62,7 +62,7 @@ function HeartBeat()
 
 function MsgSrv(data)
 {
-	msg="?"
+	var msg="?"
 	for (id in data)
 	{
 		msg+=id+"="+data[id]+"&";
@@ -114,7 +114,7 @@ function makeid(length) {
 
 function Sanitize(str) 
 {
-	var out = "";
+	var out = "", c;
 	for (i in str)
 	{
 		c=str.charCodeAt(i).toString(16);
@@ -137,7 +137,7 @@ function Desanitize(str)
  
  function Gaussian(mu, sigma)
  {
-	norm=-1;
+	var norm=-1, a=0, b=0;
 	while(norm<0 || norm>100)
 	{
 		a=0; while(a==0){ a=Math.random(); }

@@ -62,7 +62,7 @@ function HeartBeat()
 
 function MsgSrv(data)
 {
-	msg="?"
+	var msg="?"
 	for (id in data)
 	{
 		msg+=id+"="+data[id]+"&";
@@ -114,7 +114,7 @@ function makeid(length) {
 
 function Sanitize(str) 
 {
-	var out = "";
+	var out = "", c;
 	for (i in str)
 	{
 		c=str.charCodeAt(i).toString(16);
@@ -137,13 +137,38 @@ function Desanitize(str)
  
  function Gaussian(mu, sigma)
  {
-	norm=-1;
-	while(norm<0 || norm>100)
+	var norm=-2, a=0, b=0;
+	while(norm<-1 || norm>1)
 	{
 		a=0; while(a==0){ a=Math.random(); }
 		b=0; while(b==0){ b=Math.random(); }
 		norm=Math.sqrt(-2*Math.log(a))*Math.cos(Math.PI*2*b);
-		norm=norm*sigma+mu;
 	}
-	return norm;
+	return norm*sigma+mu;
  }
+
+ function CalcRoll(mu, sigma)
+ {
+	var norm=-1;
+	while(norm<0 || norm>10)
+	{
+		norm=Gaussian(mu/10, sigma/10)*10;
+	}
+	return Math.round(norm*10)/10;
+ }
+
+ $Log=$(".Log");
+function UserLog(str, colour="black")
+{
+	var temp = "<div style='color:"+colour+";'>" + str + "</div>"
+	$Log.append(temp);
+	
+	var $children = $Log.children();
+	if ($children.length > 80)
+	{
+		$($children[0]).remove();
+	}
+
+	$Log.scrollTop($Log.height());
+	Log($Log.height());
+}

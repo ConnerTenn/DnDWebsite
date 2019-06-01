@@ -22,24 +22,22 @@ function ProcessMessage(msg, data)
 	}
 	else if (msg=="HeartBeat")
 	{
-		Beat=true;
+		//Beat=true;
 	}
 	else
 	{
 		Warn("Unhandled Msg [" + msg + "]");
 	}
 }
-
 function OnConnect()
 {
-	AddLog("Connected to server!", "green");
+	UserLog("Connected to server!", "green");
 }
-
 function OnDisconnect()
 {
-	AddLog("Warning:: Connection to Server Lost", "red");
+	UserLog("Warning:: Connection to Server Lost", "red");
 }
-InitConnection(ProcessMessage, OnConnect, OnDisconnect, true);
+InitConnection(ProcessMessage, OnConnect, OnDisconnect, false);
 
 $(".Logout").click(Login);
 function Login()
@@ -56,38 +54,57 @@ $TemplateStat = $(".Template.Stat");
 
 
 CharacterStats = {
-	"Strength": [50, 50],
-	"Dexterity": [50, 50],
-	"Intelligence": [50, 50],
-	"Observation": [50, 50],
-	"Wisdom": [50, 50],
-	"Charisma": [50, 50],
-	"MagicalPower": [50, 50],
-	"MaxHealth": [6,0],
-	"MaxMana": [10,0]
+	"Strength": ["Roll", 5.0, 3.0],
+	"Dexterity": ["Roll", 5.0, 3.0],
+	"Intelligence": ["Roll", 5.0, 3.0],
+	"Observation": ["Roll", 5.0, 3.0],
+	"Wisdom": ["Roll", 5.0, 3.0],
+	"Charisma": ["Roll", 5.0, 3.0],
+	"MagicalPower": ["Roll", 5.0, 3.0],
+	"MaxHealth": ["Val", 6,0],
+	"MaxMana": ["Val", 10,0]
 };
 
 ItemStats = {
-	"Strength": [50, 50],
-	"Weight": [50, 50],
-	"Stealth": [50, 50],
+	"Strength": ["Roll", 5.0, 3.0],
+	"Weight": ["Val", 5.0, 3.0],
+	"Stealth": ["Val", 5.0, 3.0],
 };
 
-GeneralRoll = { "GeneralRoll":[50, 50] };
+GeneralRoll = { "GeneralRoll":["Roll", 5.0, 3.0] };
 
 function AddStats(stats, defaultStats, $location)
 {
-	for (var i in defaultStats)
+	stats = ( stats ? stats : defaultStats );
+
+	for (var stat in stats)
 	{
+		var statData = stats[stat];
+		if (statData.length != 3) 
+		{ 
+			if (defaultStats[stat]) { statData=[defaultStats[stat][0],statData[0],statData[1]]; } 
+			else { statData=["Roll",statData[0],statData[1]]; }
+		}
+		if (statData[1]>10) { statData[1]=statData[1]/10; }
+		if (statData[2]>10) { statData[2]=statData[2]/10; }
+
 		var $newElem = $TemplateStat.clone(true);
 		$newElem.removeClass("Template");
 		
-		stat = ( stats && stats[i] ? stats[i] : defaultStats[i] );
-		//Log(stat);
+		//Log(statData);
 		
-		$newElem.find(".Stat_ID").text(i);
-		$newElem.find(".Stat_Prob").val(stat[0]);
-		$newElem.find(".Stat_Var").val(stat[1]);
+		$newElem.find(".Stat_ID").text(stat);
+		$newElem.find(".Stat_Type").text(statData[0]);
+		$newElem.find(".Stat_Prob").val(statData[1]);
+		if (statData[0] == "Roll")
+		{
+			$newElem.find(".Stat_Var").val(statData[2]);
+		}
+		else
+		{
+			$newElem.find(".Stat_Var").remove();
+			$newElem.find(".Roll").remove();
+		}
 		//$newElem.change(ResendCharacterData);
 		$location.append($newElem);
 	}
@@ -100,7 +117,7 @@ function InitItem($container, data)
 	var $newElem = $TemplateItem.clone(true);
 	$newElem.removeClass("Template");
 	
-	itemID=null;
+	var itemID=null;
 	if (data) 
 	{ 
 		itemID = data.ItemID; 
@@ -169,7 +186,7 @@ function GetItemData($item)
 	itemData.Stats = {};
 	$item.find(".Stat").each( function(i)
 	{
-		label = $(this).find(".Stat_ID").text();
+		var label = $(this).find(".Stat_ID").text();
 		itemData.Stats[label] = [$(this).find(".Stat_Prob").val(), $(this).find(".Stat_Var").val()];
 	});
 
@@ -186,8 +203,8 @@ function GetCharacterData($root)
 	//for (var i in stats)
 	$root.find(".Stat_Container .Stat").each( function(i)
 	{
-		label = $(this).find(".Stat_ID").text();
-		data.Stats[label] = [$(this).find(".Stat_Prob").val(), $(this).find(".Stat_Var").val()];
+		var label = $(this).find(".Stat_ID").text();
+		data.Stats[label] = [$(this).find(".Stat_Type").text(), $(this).find(".Stat_Prob").val(), $(this).find(".Stat_Var").val()];
 	});
 	
 	data.Items = [];
@@ -206,13 +223,13 @@ function GetCharacterData($root)
 function ResendCharacterData($character)
 {
 	var data = GetCharacterData($character);
-	username = Cookies.get("Username");
-	passHash = Cookies.get("PassHash");
+	var username = Cookies.get("Username");
+	var passHash = Cookies.get("PassHash");
 	
 	Log("Sending Character Data:");
 	Log(data);
 	
-	game = "Intro";
+	var game = "Intro";
 	MsgSrv({ Msg:"UpdateCharacter", "Username":username, "PassHash":passHash, "Game":game, "CharacterID":data.CharacterID, Data:JSON.stringify(data) });
 }
 
@@ -234,7 +251,7 @@ function AddItem(event)
 }
 function DelItem(event)
 {
-	$character = $(this).closest(".Character")
+	var $character = $(this).closest(".Character")
 	
 	$(this).closest(".Item").remove();
 	
@@ -244,27 +261,27 @@ function DelItem(event)
 $(".Add.Add_Character").click(AddCharacter);
 function AddCharacter()
 {
-	newCharacter = new Character();
-	data = GetCharacterData(newCharacter.$Root);
+	var newCharacter = new Character();
+	var data = GetCharacterData(newCharacter.$Root);
 	//$character = newCharacter.$Root;
 	
 	//id = $character.find("Character_ID").text();
-	username = Cookies.get("Username");
-	passHash = Cookies.get("PassHash");
-	game = "Intro";
+	var username = Cookies.get("Username");
+	var passHash = Cookies.get("PassHash");
+	var game = "Intro";
 	MsgSrv({ Msg:"AddCharacter", "Username":username, "PassHash":passHash, "Game":game, "CharacterID":data.CharacterID, Data:JSON.stringify(data) });
 }
 
 $(".Del.Del_Character").click(DelCharacter);
 function DelCharacter(event)
 {
-	$character = $(this).closest(".Character")
-	data = GetCharacterData($character);
+	var $character = $(this).closest(".Character")
+	var data = GetCharacterData($character);
 	
 	//id = $character.find("Character_ID").text();
-	username = Cookies.get("Username");
-	passHash = Cookies.get("PassHash");
-	game = "Intro";
+	var username = Cookies.get("Username");
+	var passHash = Cookies.get("PassHash");
+	var game = "Intro";
 	MsgSrv({ Msg:"DeleteCharacter", "Username":username, "PassHash":passHash, "Game":game, "CharacterID":data.CharacterID });
 	
 	$character.remove();
@@ -273,46 +290,30 @@ function DelCharacter(event)
 
 function RequestCharacter(game)
 {
-	username = Cookies.get("Username");
-	passHash = Cookies.get("PassHash");
+	var username = Cookies.get("Username");
+	var passHash = Cookies.get("PassHash");
 	MsgSrv({ Msg:"GetCharacter", "Username":username, "PassHash":passHash, "Game":game });
 }
 
-function RequestCharacterData(game, name)
+/*function RequestCharacterData(game, name)
 {
-	username=Cookies.get("Username");
-	passHash=Cookies.get("PassHash");
+	var username=Cookies.get("Username");
+	var passHash=Cookies.get("PassHash");
 	MsgSrv({Msg:"GetCharacterData", "Username":username, "PassHash":passHash, "Game":game, "CharacterID":name});
-}
+}*/
 
 RequestCharacter("Intro");
 
-$Log=$(".Log");
-function AddLog(str, colour="black")
-{
-	temp = "<div style='color:"+colour+";'>" + str + "</div>"
-	$Log.append(temp);
-	
-	$children = $Log.children();
-	if ($children.length > 80)
-	{
-		$($children[0]).remove();
-	}
-
-	$Log.scrollTop($Log.height());
-	Log($Log.height());
-	
-
-}
 
 $(".Roll").click(Roll);
 function Roll(event)
 {
-	$Stat = $(this).closest(".Stat");
-	average = parseInt($Stat.find(".Stat_Prob").val())/100;
-	variance = parseInt($Stat.find(".Stat_Var").val())/100;
+	var $Stat = $(this).closest(".Stat");
+	var average = parseFloat($Stat.find(".Stat_Prob").val());
+	var variance = parseFloat($Stat.find(".Stat_Var").val());
 
-	AddLog("Roll "+$Stat.find(".Stat_ID").text()+" "+Math.round(Gaussian(average, variance)*100));
+	var roll = CalcRoll(average, variance);
+	UserLog("Roll "+$Stat.find(".Stat_ID").text()+" "+roll);
 }
 
 

@@ -144,7 +144,6 @@ class Character
 		
 		
 		
-		this.$Root.find(".Character_ID").text(this.CharacterID);
 
 		//Set Saved data
 		if (data)
@@ -160,6 +159,7 @@ class Character
 			if (data.TextBox) { this.$Root.find("textarea").val(Desanitize(data.TextBox)); }
 		}
 		else { this.CharacterID = makeid(10); }
+		this.$Root.find(".Character_ID").text(this.CharacterID);
 		var stats = ((data && data.Stats) ? data.Stats : null );
 		AddStats(stats, CharacterStats, this.$StatContainer);
 

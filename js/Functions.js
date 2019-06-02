@@ -157,6 +157,12 @@ function Desanitize(str)
 	return Math.round(norm*10)/10;
  }
 
+function ResizeTextarea(elem){
+	elem.style.cssText = 'height:auto; padding:0';
+	//Use box-sizing = "content-box"
+	elem.style.cssText = 'height:' + elem.scrollHeight + 'px';
+}
+
  $Log=$(".Log");
 function UserLog(str, colour="black")
 {

@@ -143,10 +143,10 @@ class Character
 		this.$ItemContainer = this.$Root.find(".Item_Container");
 		
 		
-		//this.$Root.find(".Character_Name").change(this, $ResendCharacterData);
 		
-		//AddStats(CharacterStats, this.$StatContainer);
-		
+		this.$Root.find(".Character_ID").text(this.CharacterID);
+
+		//Set Saved data
 		if (data)
 		{
 			if (data.CharacterID) { this.CharacterID = data.CharacterID; } 
@@ -160,15 +160,16 @@ class Character
 			if (data.TextBox) { this.$Root.find("textarea").val(Desanitize(data.TextBox)); }
 		}
 		else { this.CharacterID = makeid(10); }
-		
 		var stats = ((data && data.Stats) ? data.Stats : null );
 		AddStats(stats, CharacterStats, this.$StatContainer);
-		
-		this.$Root.change(this, function(event) { ResendCharacterData(event.data.$Root) } );
-			
-		this.$Root.find(".Character_ID").text(this.CharacterID);
 
+		//Add change handler
+		this.$Root.change(this, function(event) { ResendCharacterData(event.data.$Root) } );
+		
+		//Add to DOM
 		$CharacterContainer.append(this.$Root);
+
+		ResizeTextarea(this.$Root.find("textarea")[0]);
 	}
 	
 	$(elem)
@@ -316,4 +317,6 @@ function Roll(event)
 	UserLog("Roll "+$Stat.find(".Stat_ID").text()+" "+roll);
 }
 
-
+$("textarea").on("input",function(event) {
+	ResizeTextarea(this);
+});
